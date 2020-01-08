@@ -1,0 +1,24 @@
+﻿@page "/"
+@inject HttpClient HttpClient
+@using FifaTournamentClient.Models
+
+<h1>Players</h1>
+
+@foreach(var player in players)
+{
+    <p>@player.FirstName @player.LastName</p>
+}
+
+@code {
+    private List<Player> players = new List<Player> { };
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        players = await HttpClient.PostJsonAsync<List<Player>>(
+            "https://fifa-tournament-graph-api.herokuapp.com/",
+            "{ \"query\": \u0022{ players { id\n firstName\n lastName\n score\n } }\u0022 }");
+
+        return;
+    }
+}
