@@ -1,13 +1,31 @@
 ﻿@page "/"
-@inject HttpClient HttpClient
+
 @using FifaTournamentClient.Models
+@using FifaTournamentClient.Services
 
-<h1>Players</h1>
+@inject PlayersService PlayersService
 
-@foreach(var player in players)
-{
-    <p>@player.FirstName @player.LastName</p>
-}
+<h1>Player Ranking</h1>
+
+<table class="table table-striped table-bordered table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var player in players)
+        {
+        <tr>
+            <td>@player.FirstName</td>
+            <td>@player.LastName</td>
+            <td>@player.Score</td>
+        </tr>
+        }
+    </tbody>
+</table>
 
 @code {
     private List<Player> players = new List<Player> { };
@@ -15,9 +33,7 @@
     protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
-        players = await HttpClient.PostJsonAsync<List<Player>>(
-            "https://fifa-tournament-graph-api.herokuapp.com/",
-            "{ \"query\": \u0022{ players { id\n firstName\n lastName\n score\n } }\u0022 }");
+        this.players = (await PlayersService.GetPlayersAsync()).OrderByDescending(p => p.Score).ToList();
 
         return;
     }

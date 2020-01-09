@@ -1,3 +1,4 @@
+using FifaTournamentClient.Services;
 using Microsoft.AspNetCore.Blazor.Http;
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +9,8 @@ namespace FifaTournamentClient
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<GraphHelper>();
+            services.AddScoped<PlayersService>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)
