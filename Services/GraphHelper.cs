@@ -9,7 +9,7 @@ namespace FifaTournamentClient.Services
 {
     public class GraphHelper
     {
-        private readonly string apiUrl = "http://localhost:4000";
+        private readonly string apiUrl = "https://fifa-tournament-graph-api.herokuapp.com/";
         private HttpClient httpClient;
 
         public GraphHelper(HttpClient httpClient)
