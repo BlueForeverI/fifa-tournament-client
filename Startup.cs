@@ -11,6 +11,7 @@ namespace FifaTournamentClient
         {
             services.AddScoped<GraphHelper>();
             services.AddScoped<PlayersService>();
+            services.AddScoped<MatchesService>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

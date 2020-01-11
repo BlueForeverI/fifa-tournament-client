@@ -1,0 +1,90 @@
+﻿@page "/matches"
+
+@using FifaTournamentClient.Models
+@using FifaTournamentClient.Services
+@using FifaTournamentClient.Components
+
+@inject MatchesService MatchesService
+@inject PlayersService PlayersSerivce
+
+<h1>Matches</h1>
+
+<table class="table table-striped table-bordered table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th>Fixture</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var match in matches)
+        {
+            <tr>
+                <td>
+                    <span>@match.Player1.FirstName @match.Player1.LastName</span>
+                    <TeamLogo Url="@match.Player1.TeamLogoUrl" />
+                    <span>@match.Score1 : @match.Score2</span>
+                    <TeamLogo Url="@match.Player2.TeamLogoUrl" />
+                    <span>@match.Player2.FirstName @match.Player2.LastName</span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<EditForm Model="@newMatch" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <InputSelect @bind-Value="@newMatch.Player1Id" class="custom-select w-auto">
+            @foreach (var player in allPlayers.Where(p => p.Id != newMatch.Player2Id))
+            {
+                <option value="@player.Id">@player.FirstName @player.LastName</option>
+            }
+        </InputSelect>
+        <InputNumber @bind-Value="@newMatch.Score1" class="form-control w-auto d-inline-block" />
+        :
+        <InputNumber @bind-Value="@newMatch.Score2" class="form-control w-auto d-inline-block" />
+        <InputSelect @bind-Value="@newMatch.Player2Id" class="custom-select w-auto">
+            @foreach (var player in allPlayers.Where(p => p.Id != newMatch.Player1Id))
+            {
+                <option value="@player.Id">@player.FirstName @player.LastName</option>
+            }
+        </InputSelect>
+        <button type="submit" class="btn btn-primary">Add Match</button>
+    </div>
+</EditForm>
+
+@code {
+    private List<Match> matches = new List<Match>();
+    private List<Player> allPlayers = new List<Player>();
+
+    private CreateMatchModel newMatch = new CreateMatchModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        await LoadMatches();
+        await LoadPlayers();
+        return;
+    }
+
+    private async Task LoadMatches()
+    {
+        this.matches = await MatchesService.GetMatchesAsync();
+        return;
+    }
+
+    private async Task LoadPlayers()
+    {
+        this.allPlayers = await PlayersSerivce.GetPlayersAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await MatchesService.CreateMatch(newMatch);
+        this.newMatch = new CreateMatchModel();
+        await LoadMatches();
+        return;
+    }
+}

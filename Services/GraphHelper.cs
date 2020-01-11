@@ -17,14 +17,27 @@ namespace FifaTournamentClient.Services
             this.httpClient = httpClient;
         }
 
-        public async Task<T> GetObject<T>(string query, string property)
+        public Task<T> GetObject<T>(string query, string property)
         {
-            var content = new StringContent($"{{\"query\":\"{{\\n{FormatQuery(query)}\\n}}\\n\"}}", Encoding.UTF8, "application/json");
+            var content = new StringContent($"{{\"query\":\"{{\\n{FormatQuery(query)}\\n}}\\n\"}}",
+                Encoding.UTF8, "application/json");
+            return ExecuteGraphRequest<T>(content, property);
+        }
+
+        public Task<T> ExecuteMutation<T>(string query, string property)
+        {
+            var content = new StringContent($"{{\"query\":\"\\n{FormatQuery(query)}\\n\"}}",
+                Encoding.UTF8, "application/json");
+            return ExecuteGraphRequest<T>(content, property);
+        }
+
+        private async Task<T> ExecuteGraphRequest<T>(HttpContent request, string dataProperty)
+        {
             string resp = await (await httpClient.PostAsync(
                 apiUrl,
-                content)).Content.ReadAsStringAsync();
+                request)).Content.ReadAsStringAsync();
             var des = JsonConvert.DeserializeObject(resp);
-            return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject((des as dynamic).data[property]));
+            return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject((des as dynamic).data[dataProperty]));
         }
 
         private string FormatQuery(string original)
